@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLink – Zero Hunger | UN SDG 2 Platform</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS for Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <!-- FontAwesome for crisp icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Demo Bar & Role Switcher -->
+  <div class="demo-bar">
+    <div class="demo-bar-container">
+      <span class="demo-badge"><i class="fa-solid fa-graduation-cap"></i> SDG 2 College Project Demo</span>
+      <div class="demo-role-selector">
+        <label for="current-role-select"><i class="fa-solid fa-user-gear"></i> Quick Role Switch:</label>
+        <select id="current-role-select" onchange="switchDemoRole(this.value)">
+          <option value="donor">Food Donor (Green Valley Caterers)</option>
+          <option value="volunteer">Volunteer (Rahul Sharma)</option>
+          <option value="ngo">NGO / Trust (Hope Foundation)</option>
+          <option value="admin">System Admin</option>
+        </select>
+      </div>
+      <button class="btn-reset-demo" onclick="resetDemoData()"><i class="fa-solid fa-rotate-left"></i> Reset Demo Data</button>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="nav-container">
+      <a href="#home" class="brand-logo" onclick="navigateTo('home')">
+        <div class="logo-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <div class="logo-text">
+          <span class="brand-name">FoodLink</span>
+          <span class="brand-tagline">ZERO HUNGER • SDG 2</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu" id="nav-menu">
+        <a href="#home" class="nav-link active" data-view="home" onclick="navigateTo('home')">Home</a>
+        <a href="#donate" class="nav-link" data-view="donate" onclick="navigateTo('donate')">Donate Food</a>
+        <a href="#find-food" class="nav-link" data-view="find-food" onclick="navigateTo('find-food')">Find Food</a>
+        <a href="#volunteer" class="nav-link" data-view="volunteer" onclick="navigateTo('volunteer')">Volunteer</a>
+        <a href="#sdg2" class="nav-link" data-view="sdg2" onclick="navigateTo('sdg2')">About SDG 2</a>
+        <a href="#impact" class="nav-link" data-view="impact" onclick="navigateTo('impact')">Our Impact</a>
+        <a href="#dashboard" class="nav-link" data-view="dashboard" onclick="navigateTo('dashboard')">Dashboard</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Notification Bell -->
+        <div class="notification-wrapper">
+          <button class="icon-btn" id="notif-btn" onclick="toggleNotificationPanel()" title="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notif-badge" id="notif-count">0</span>
+          </button>
+          <div class="notif-panel dropdown-card hidden" id="notif-panel">
+            <div class="notif-header">
+              <h3><i class="fa-solid fa-bell"></i> Notifications</h3>
+              <button class="btn-text-sm" onclick="markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div class="notif-list" id="notif-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile / Auth Button -->
+        <div id="auth-buttons-container">
+          <!-- Rendered by JS -->
+        </div>
+
+        <button class="mobile-toggle" onclick="toggleMobileNav()"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER FOR ALL VIEWS -->
+  <main id="app-viewport">
+
+    <!-- ==================== 1. HOME VIEW ==================== -->
+    <section id="view-home" class="view-section active">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-container">
+          <div class="hero-content">
+            <div class="sdg-pill">
+              <span class="sdg-number">SDG 2</span>
+              <span>United Nations Zero Hunger Goal</span>
+            </div>
+            <h1 class="hero-title">Share Food. <span class="highlight">Reduce Waste.</span> Fight Hunger.</h1>
+            <p class="hero-subtitle">Connecting surplus food from hotels, functions, and households with volunteers and NGOs to nourish communities — one meal at a time.</p>
+            
+            <div class="hero-buttons">
+              <button class="btn btn-primary btn-lg" onclick="navigateTo('donate')">
+                <i class="fa-solid fa-bowl-food"></i> Donate Food Now
+              </button>
+              <button class="btn btn-outline btn-lg" onclick="navigateTo('volunteer')">
+                <i class="fa-solid fa-truck-ramp-box"></i> Become a Volunteer
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="navigateTo('find-food')">
+                <i class="fa-solid fa-map-location-dot"></i> Find Food Nearby
+              </button>
+            </div>
+
+            <!-- Food Safety Pledge Quick Banner -->
+            <div class="hero-safety-banner">
+              <i class="fa-solid fa-shield-heart"></i>
+              <span>Strict 100% Food Safety & Safe Storage Verification Protocol Active</span>
+            </div>
+          </div>
+          <div class="hero-graphic">
+            <div class="hero-card-stack">
+              <div class="hero-live-card">
+                <div class="card-status-dot pulse"></div>
+                <div class="live-card-info">
+                  <strong>Fresh Catering Surplus</strong>
+                  <p>120 Servings • Green Valley Hotel</p>
+                </div>
+                <span class="live-tag">rescued 12m ago</span>
+              </div>
+              <div class="hero-image-box">
+                <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80" alt="Food Rescue Sharing">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Impact Counters -->
+      <div class="stats-section">
+        <div class="section-container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon bg-emerald"><i class="fa-solid fa-utensils"></i></div>
+              <div class="stat-data">
+                <h3 id="stat-meals-count">14,850+</h3>
+                <p>Meals Rescued</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-teal"><i class="fa-solid fa-store"></i></div>
+              <div class="stat-data">
+                <h3 id="stat-donors-count">320+</h3>
+                <p>Food Donors</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-orange"><i class="fa-solid fa-person-biking"></i></div>
+              <div class="stat-data">
+                <h3 id="stat-volunteers-count">480+</h3>
+                <p>Active Volunteers</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-blue"><i class="fa-solid fa-building-ngo"></i></div>
+              <div class="stat-data">
+                <h3 id="stat-ngos-count">65+</h3>
+                <p>NGOs Connected</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-green"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="stat-data">
+                <h3 id="stat-deliveries-count">2,410+</h3>
+                <p>Completed Deliveries</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works Section -->
+      <div class="how-it-works-section">
+        <div class="section-container">
+          <div class="section-header center">
+            <span class="badge-sub">Simple 4-Step Ecosystem</span>
+            <h2>How FoodLink Redirects Surplus Food</h2>
+            <p>A seamless, technology-driven pipeline moving food from surplus points to tables in need.</p>
+          </div>
+
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-num">01</div>
+              <div class="step-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+              <h3>Donor Posts Surplus</h3>
+              <p>Hotels, events, or households list fresh untouched excess food with quantities, photo, and pickup time.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">02</div>
+              <div class="step-icon"><i class="fa-solid fa-robot"></i></div>
+              <h3>AI Matching & Dispatch</h3>
+              <p>Our smart algorithm matches donations with nearby NGOs and notifies verified volunteers instantly.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">03</div>
+              <div class="step-icon"><i class="fa-solid fa-truck-arrow-right"></i></div>
+              <h3>Safe Rapid Transport</h3>
+              <p>Volunteers collect packaged food using real-time maps and deliver it within safe time windows.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">04</div>
+              <div class="step-icon"><i class="fa-solid fa-face-smile"></i></div>
+              <h3>Zero Waste Achieved</h3>
+              <p>Nourishing meals reach shelters, trusts, and communities while reducing landfill greenhouse emissions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Donations Preview Carousel/Grid -->
+      <div class="featured-donations-section">
+        <div class="section-container">
+          <div class="section-header space-between">
+            <div>
+              <span class="badge-sub">Live Urgent Pickups</span>
+              <h2>Available Food Rescues</h2>
+            </div>
+            <button class="btn btn-outline" onclick="navigateTo('find-food')">View All Food Listings <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+
+          <div class="donations-grid" id="home-donations-grid">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SDG 2 Spotlight Callout -->
+      <div class="sdg-banner-section">
+        <div class="section-container">
+          <div class="sdg-banner-card">
+            <div class="sdg-banner-text">
+              <span class="sdg-badge-large"><i class="fa-solid fa-globe"></i> UN SUSTAINABLE DEVELOPMENT GOAL 2</span>
+              <h2>End hunger, achieve food security and improved nutrition, and promote sustainable agriculture.</h2>
+              <p>Globally, 1/3rd of all food produced is wasted while over 700 million people suffer from hunger. FoodLink serves as a student technology initiative to bridge this gap through zero-waste technology.</p>
+              <div class="sdg-banner-actions">
+                <button class="btn btn-light btn-lg" onclick="navigateTo('sdg2')">Read SDG 2 Deep-Dive</button>
+                <button class="btn btn-glass btn-lg" onclick="navigateTo('impact')">Explore Impact Metrics</button>
+              </div>
+            </div>
+            <div class="sdg-banner-image">
+              <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80" alt="SDG 2 Community Food Sharing">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 2. DONATE FOOD VIEW ==================== -->
+    <section id="view-donate" class="view-section">
+      <div class="page-header">
+        <div class="section-container">
+          <h1>Donate Surplus Food</h1>
+          <p>Fill out the safety-verified food details below to connect with nearby volunteers and NGOs.</p>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="donate-layout">
+          <!-- Main Donation Form -->
+          <div class="card form-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-box-open"></i> Food Donation Details</h2>
+              <span class="tag tag-success"><i class="fa-solid fa-shield"></i> Verified Donor Mode</span>
+            </div>
+
+            <form id="donation-form" onsubmit="handleDonationSubmit(event)">
+              <div class="form-row">
+                <div class="form-group col-8">
+                  <label for="food_name">Food Name / Title *</label>
+                  <input type="text" id="food_name" required placeholder="e.g. Rice & Vegetable Curry, Fresh Bakery Bread, Event Meals">
+                </div>
+                <div class="form-group col-4">
+                  <label for="category">Category *</label>
+                  <select id="category" required>
+                    <option value="Cooked Meals">Cooked Meals</option>
+                    <option value="Bakery & Snacks">Bakery & Snacks</option>
+                    <option value="Packaged Foods">Packaged Foods</option>
+                    <option value="Fresh Produce / Fruits">Fresh Produce / Fruits</option>
+                    <option value="Raw Ingredients">Raw Ingredients</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-4">
+                  <label for="servings">Quantity / Servings (People) *</label>
+                  <input type="number" id="servings" min="1" required placeholder="e.g. 50">
+                </div>
+                <div class="form-group col-4">
+                  <label for="dietary_type">Dietary Type *</label>
+                  <select id="dietary_type" required>
+                    <option value="Vegetarian">Vegetarian 🟢</option>
+                    <option value="Non-Vegetarian">Non-Vegetarian 🔴</option>
+                    <option value="Vegan">Vegan 🌱</option>
+                  </select>
+                </div>
+                <div class="form-group col-4">
+                  <label for="preparation_time">Preparation Date & Time *</label>
+                  <input type="datetime-local" id="preparation_time" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label for="pickup_deadline">Pickup Deadline / Best Before *</label>
+                  <input type="datetime-local" id="pickup_deadline" required>
+                  <small class="form-help">Donations automatically expire after this safe consumption time.</small>
+                </div>
+                <div class="form-group col-6">
+                  <label for="donor_phone">Contact Phone Number *</label>
+                  <input type="tel" id="donor_phone" required placeholder="+91 98765 43210">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="label-with-ai">
+                  <label for="location">Pickup Location Address *</label>
+                  <button type="button" class="btn-text-ai" onclick="useCurrentLocation()"><i class="fa-solid fa-location-crosshairs"></i> Use My GPS Location</button>
+                </div>
+                <input type="text" id="location" required placeholder="Full street address, hotel name, venue, city">
+              </div>
+
+              <div class="form-group">
+                <div class="label-with-ai">
+                  <label for="food_image">Food Image URL (Or Select Preset)</label>
+                  <span class="ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Image Quick Select</span>
+                </div>
+                <div class="preset-images-picker">
+                  <button type="button" class="preset-img-btn" onclick="setPresetImage('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80')">Meal Bowl</button>
+                  <button type="button" class="preset-img-btn" onclick="setPresetImage('https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=600&q=80')">Bakery</button>
+                  <button type="button" class="preset-img-btn" onclick="setPresetImage('https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=600&q=80')">Produce</button>
+                  <button type="button" class="preset-img-btn" onclick="setPresetImage('https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&q=80')">Catering Box</button>
+                </div>
+                <input type="url" id="food_image" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group">
+                <div class="label-with-ai">
+                  <label for="instructions">Additional Instructions / Packaging Info</label>
+                  <button type="button" class="btn-ai-sparkle" onclick="generateAIFoodDescription()">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generate Description
+                  </button>
+                </div>
+                <textarea id="instructions" rows="3" placeholder="e.g. Hygienically packaged in foil containers, needs hot insulated transport box..."></textarea>
+              </div>
+
+              <!-- Mandatory Food Safety Confirmation Box -->
+              <div class="safety-checklist-card">
+                <div class="safety-card-header">
+                  <i class="fa-solid fa-shield-virus"></i>
+                  <h3>Mandatory Food Safety Confirmation</h3>
+                </div>
+                <p class="safety-text">“Only donate food that is safe and suitable for consumption.”</p>
+                <div class="checkbox-group">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="chk_safe" required>
+                    <span class="checkmark"></span>
+                    <span>I confirm that this food was prepared under clean hygiene conditions and is safe for consumption.</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="chk_storage" required>
+                    <span class="checkmark"></span>
+                    <span>The food has been stored at safe temperatures and packaged cleanly.</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="chk_deadline" required>
+                    <span class="checkmark"></span>
+                    <span>The specified pickup deadline is accurate and permits safe transport before consumption.</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                  <i class="fa-solid fa-paper-plane"></i> Publish Surplus Food Donation
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Side Information Column -->
+          <div class="donate-sidebar">
+            <div class="card info-card">
+              <h3><i class="fa-solid fa-lightbulb"></i> Donor Best Practices</h3>
+              <ul class="icon-list">
+                <li><i class="fa-solid fa-circle-check text-success"></i> Package items in clean disposable or sealable containers.</li>
+                <li><i class="fa-solid fa-circle-check text-success"></i> Separate hot items from cold salad or dairy products.</li>
+                <li><i class="fa-solid fa-circle-check text-success"></i> Provide clear pickup directions or gate entry instructions.</li>
+                <li><i class="fa-solid fa-circle-check text-success"></i> Post donations at least 2 hours before your deadline.</li>
+              </ul>
+            </div>
+
+            <div class="card ai-card">
+              <div class="ai-card-badge"><i class="fa-solid fa-robot"></i> Smart Match Feature</div>
+              <h3>AI Auto-Dispatch</h3>
+              <p>Once submitted, FoodLink's matching engine automatically calculates distance vectors and alerts the nearest 5 verified volunteers and registered NGOs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. FIND FOOD & MAP VIEW ==================== -->
+    <section id="view-find-food" class="view-section">
+      <div class="page-header">
+        <div class="section-container space-between align-center">
+          <div>
+            <h1>Interactive Food Rescue Map & Directory</h1>
+            <p>Explore surplus food donations, nearby NGOs, and volunteer pickup points in real-time.</p>
+          </div>
+          <div class="map-filter-pills">
+            <button class="pill-btn active" data-filter="all" onclick="filterMapMarkers('all')">Show All</button>
+            <button class="pill-btn" data-filter="donations" onclick="filterMapMarkers('donations')">Available Food</button>
+            <button class="pill-btn" data-filter="ngos" onclick="filterMapMarkers('ngos')">NGOs / Trusts</button>
+            <button class="pill-btn" data-filter="volunteers" onclick="filterMapMarkers('volunteers')">Volunteers</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="map-layout">
+          <!-- Interactive Leaflet Map Container -->
+          <div class="map-wrapper card">
+            <div id="leaflet-map"></div>
+            <div class="map-legend">
+              <span class="legend-item"><i class="fa-solid fa-location-dot marker-green"></i> Food Donation</span>
+              <span class="legend-item"><i class="fa-solid fa-location-dot marker-blue"></i> NGO / Shelter</span>
+              <span class="legend-item"><i class="fa-solid fa-location-dot marker-orange"></i> Active Volunteer</span>
+            </div>
+          </div>
+
+          <!-- Cards Side Directory -->
+          <div class="directory-wrapper">
+            <div class="directory-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="directory-search-input" placeholder="Search food name, NGO, or location..." onkeyup="handleDirectorySearch(this.value)">
+            </div>
+
+            <div class="directory-list" id="directory-cards-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. VOLUNTEER VIEW ==================== -->
+    <section id="view-volunteer" class="view-section">
+      <div class="page-header bg-gradient-orange">
+        <div class="section-container">
+          <h1>Volunteer Logistics Center</h1>
+          <p>Rescue food from donors and transport it safely to verified NGOs and local community centers.</p>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="volunteer-dashboard-grid">
+          <!-- Stats Cards -->
+          <div class="card stat-widget">
+            <div class="widget-icon text-orange"><i class="fa-solid fa-person-biking"></i></div>
+            <div>
+              <h4 id="vol-accepted-count">0</h4>
+              <p>Assigned Pickups</p>
+            </div>
+          </div>
+          <div class="card stat-widget">
+            <div class="widget-icon text-success"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <h4 id="vol-completed-count">12</h4>
+              <p>Completed Rescue Deliveries</p>
+            </div>
+          </div>
+          <div class="card stat-widget">
+            <div class="widget-icon text-blue"><i class="fa-solid fa-route"></i></div>
+            <div>
+              <h4 id="vol-dist-count">48.5 km</h4>
+              <p>Total Rescue Distance</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="volunteer-tabs">
+          <button class="tab-btn active" onclick="switchVolunteerTab('available')">Available Nearby Pickups</button>
+          <button class="tab-btn" onclick="switchVolunteerTab('my-deliveries')">My Active & Past Deliveries</button>
+        </div>
+
+        <div id="vol-tab-available" class="vol-tab-content active">
+          <div class="donations-grid" id="vol-available-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div id="vol-tab-my-deliveries" class="vol-tab-content">
+          <div class="deliveries-list" id="vol-my-deliveries-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. ABOUT SDG 2 VIEW ==================== -->
+    <section id="view-sdg2" class="view-section">
+      <div class="sdg-hero-header">
+        <div class="section-container">
+          <div class="sdg-large-logo">
+            <div class="sdg-box">
+              <span class="num">2</span>
+              <span class="icon"><i class="fa-solid fa-bowl-rice"></i></span>
+              <span class="label">ZERO HUNGER</span>
+            </div>
+          </div>
+          <div class="sdg-hero-info">
+            <span class="badge-sub">United Nations Sustainable Development Goal</span>
+            <h1>Goal 2: Zero Hunger</h1>
+            <p>End hunger, achieve food security and improved nutrition, and promote sustainable agriculture by 2030.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="sdg-grid-content">
+          <div class="card sdg-article-card">
+            <h2>What is Zero Hunger?</h2>
+            <p>SDG 2 aims to end all forms of hunger and malnutrition by 2030, ensuring that all people — especially children and the vulnerable — have access to sufficient, safe, and nutritious food all year round.</p>
+            
+            <div class="sdg-stats-highlight">
+              <div class="sdg-stat-box">
+                <h3>735 Million+</h3>
+                <p>People worldwide face chronic hunger daily.</p>
+              </div>
+              <div class="sdg-stat-box">
+                <h3>1.3 Billion Tons</h3>
+                <p>Of edible food is lost or wasted globally each year.</p>
+              </div>
+              <div class="sdg-stat-box">
+                <h3>8-10%</h3>
+                <p>Of global greenhouse gas emissions come from food waste.</p>
+              </div>
+            </div>
+
+            <h2>Why Hunger Matters & The Waste Paradox</h2>
+            <p>Hunger is not caused by a global lack of food. The world produces enough food to feed everyone. The primary barriers are food loss, logistics inefficiencies, uneven distribution, and commercial food waste during events and catering.</p>
+            <p>Redirecting just 15% of surplus edible food could save millions of lives and significantly slow down climate degradation caused by decomposing organic waste in landfills.</p>
+
+            <h2>How FoodLink Technology Helps</h2>
+            <div class="sdg-feature-bullets">
+              <div class="sdg-bullet-item">
+                <i class="fa-solid fa-bolt text-emerald"></i>
+                <div>
+                  <strong>Real-Time Redistribution</strong>
+                  <p>Eliminates delays by connecting donors directly with nearby transporters within minutes of event conclusion.</p>
+                </div>
+              </div>
+              <div class="sdg-bullet-item">
+                <i class="fa-solid fa-shield-halved text-emerald"></i>
+                <div>
+                  <strong>Standardized Food Safety Protocols</strong>
+                  <p>Enforces donor safety confirmations and safe-use deadlines so food remains 100% wholesome.</p>
+                </div>
+              </div>
+              <div class="sdg-bullet-item">
+                <i class="fa-solid fa-chart-line text-emerald"></i>
+                <div>
+                  <strong>Measurable Social Impact</strong>
+                  <p>Tracks metric tons of CO2 offset and total meals served for organizational SDG reporting.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="student-notice-box">
+              <i class="fa-solid fa-circle-info"></i>
+              <span><strong>Academic Project Disclaimer:</strong> FoodLink is a student/community technology project supporting the global vision of UN SDG 2. It serves as an open prototype platform to demonstrate how technology can empower grassroots food rescue.</span>
+            </div>
+          </div>
+
+          <div class="sdg-sidebar">
+            <div class="card sdg-action-card">
+              <h3>How You Can Participate</h3>
+              <ul class="sdg-checklist">
+                <li><i class="fa-solid fa-check"></i> <strong>Donors:</strong> List untouched leftover catering food.</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Volunteers:</strong> Offer 30 minutes to make a pickup delivery.</li>
+                <li><i class="fa-solid fa-check"></i> <strong>NGOs:</strong> Register your shelter or trust to receive meals.</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Advocates:</strong> Share SDG 2 awareness in your institution.</li>
+              </ul>
+              <button class="btn btn-primary btn-block mt-3" onclick="navigateTo('donate')">Start Donating Today</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. OUR IMPACT VIEW ==================== -->
+    <section id="view-impact" class="view-section">
+      <div class="page-header">
+        <div class="section-container">
+          <h1>Our Social & Environmental Impact</h1>
+          <p>Real-time analytics on rescued meals, diverted food waste, and carbon footprint reduction.</p>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="impact-metrics-row">
+          <div class="card metric-card border-green">
+            <div class="metric-val" id="impact-meals">14,850</div>
+            <div class="metric-label">Total Meals Rescued</div>
+          </div>
+          <div class="card metric-card border-emerald">
+            <div class="metric-val" id="impact-waste">5.94 Tons</div>
+            <div class="metric-label">Food Waste Diverted</div>
+          </div>
+          <div class="card metric-card border-blue">
+            <div class="metric-val" id="impact-co2">14.85 Tons</div>
+            <div class="metric-label">CO₂ Emissions Prevented</div>
+          </div>
+          <div class="card metric-card border-orange">
+            <div class="metric-val" id="impact-deliveries">2,410</div>
+            <div class="metric-label">Successful Deliveries</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card chart-card">
+            <h3><i class="fa-solid fa-chart-column"></i> Monthly Meals Rescued Growth</h3>
+            <div class="chart-container">
+              <canvas id="chart-monthly-meals"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <h3><i class="fa-solid fa-chart-pie"></i> Food Category Breakdown</h3>
+            <div class="chart-container">
+              <canvas id="chart-food-categories"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. ROLE DASHBOARDS VIEW ==================== -->
+    <section id="view-dashboard" class="view-section">
+      <div class="page-header">
+        <div class="section-container space-between align-center">
+          <div>
+            <h1 id="dashboard-role-title">Donor Dashboard</h1>
+            <p>Manage your food listings, track live pickups, and view history.</p>
+          </div>
+          <div class="role-badge-chip" id="current-role-chip">
+            <i class="fa-solid fa-user-shield"></i> <span id="chip-role-name">Food Donor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container page-body" id="dashboard-dynamic-content">
+        <!-- Rendered dynamically by JS depending on selected role (Donor, Volunteer, NGO, Admin) -->
+      </div>
+    </section>
+
+    <!-- ==================== 8. ADMIN DASHBOARD VIEW ==================== -->
+    <section id="view-admin" class="view-section">
+      <div class="page-header bg-dark">
+        <div class="section-container space-between align-center">
+          <div>
+            <h1>Admin Control & Governance Console</h1>
+            <p>Verify NGOs, moderate food listings, manage users, and review platform safety reports.</p>
+          </div>
+          <span class="tag tag-danger"><i class="fa-solid fa-lock"></i> Admin Clearance Active</span>
+        </div>
+      </div>
+
+      <div class="section-container page-body">
+        <div class="admin-stats-row">
+          <div class="card stat-widget">
+            <div class="widget-icon text-emerald"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <h4 id="admin-users-total">865</h4>
+              <p>Total Registered Users</p>
+            </div>
+          </div>
+          <div class="card stat-widget">
+            <div class="widget-icon text-blue"><i class="fa-solid fa-building-circle-check"></i></div>
+            <div>
+              <h4 id="admin-ngos-total">65</h4>
+              <p>Verified NGOs</p>
+            </div>
+          </div>
+          <div class="card stat-widget">
+            <div class="widget-icon text-orange"><i class="fa-solid fa-box-tissue"></i></div>
+            <div>
+              <h4 id="admin-donations-total">1,420</h4>
+              <p>Total Food Listings</p>
+            </div>
+          </div>
+          <div class="card stat-widget">
+            <div class="widget-icon text-danger"><i class="fa-solid fa-flag"></i></div>
+            <div>
+              <h4 id="admin-reports-total">0</h4>
+              <p>Pending Moderation Reports</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-grid">
+          <!-- Pending NGO Verification List -->
+          <div class="card admin-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-user-check"></i> NGO & Trust Verification Requests</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="table" id="table-ngo-verification">
+                <thead>
+                  <tr>
+                    <th>Organization</th>
+                    <th>Reg Number</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rendered by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Food Donation Moderation Table -->
+          <div class="card admin-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-layer-group"></i> All Platform Food Listings</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="table" id="table-admin-donations">
+                <thead>
+                  <tr>
+                    <th>Food Title</th>
+                    <th>Donor</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th>Moderation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rendered by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Auth Modal (Login / Register) -->
+  <div class="modal-backdrop hidden" id="modal-auth">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="modal-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form active" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" required placeholder="donor@greenvalley.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In to Account</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" class="auth-form" onsubmit="handleRegisterSubmit(event)">
+        <div class="form-group">
+          <label>Full Name / Organization</label>
+          <input type="text" id="reg-name" required placeholder="Hope Welfare Trust / Rahul S.">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="reg-email" required placeholder="contact@hopetrust.org">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="reg-phone" required placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label>Select User Role</label>
+          <select id="reg-role" required onchange="toggleRegFields(this.value)">
+            <option value="donor">Food Donor (Hotel, Event, Household)</option>
+            <option value="volunteer">Volunteer (Transporter)</option>
+            <option value="ngo">NGO / Trust / Shelter</option>
+          </select>
+        </div>
+
+        <div id="ngo-extra-fields" class="hidden">
+          <div class="form-group">
+            <label>Government Registration Number</label>
+            <input type="text" id="reg-ngo-num" placeholder="NGO-REG-2024-8891">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Food Details / Pickup Action Modal -->
+  <div class="modal-backdrop hidden" id="modal-food-detail">
+    <div class="modal-card modal-lg">
+      <button class="modal-close" onclick="closeFoodDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div id="modal-food-detail-content">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="section-container footer-content">
+      <div class="footer-brand">
+        <div class="logo-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <h3>FoodLink – Zero Hunger</h3>
+        <p>A student technology initiative aligned with United Nations Sustainable Development Goal 2.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Navigation</h4>
+        <a href="#home" onclick="navigateTo('home')">Home</a>
+        <a href="#donate" onclick="navigateTo('donate')">Donate Food</a>
+        <a href="#find-food" onclick="navigateTo('find-food')">Find Food Map</a>
+        <a href="#volunteer" onclick="navigateTo('volunteer')">Volunteer Portal</a>
+        <a href="#sdg2" onclick="navigateTo('sdg2')">About SDG 2</a>
+        <a href="#impact" onclick="navigateTo('impact')">Impact Metrics</a>
+      </div>
+
+      <div class="footer-sdg">
+        <h4>UN SDG 2 Alignment</h4>
+        <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_icons-02.jpg" alt="SDG 2 Zero Hunger Logo" class="sdg-logo-img">
+        <p>© 2026 FoodLink Project. Built for Social Good.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
